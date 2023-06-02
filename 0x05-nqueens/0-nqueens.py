@@ -1,107 +1,86 @@
-#!/usr/bin/python3
-"""N queens solution finder module.
-"""
 import sys
 
 
-solutions = []
-"""The list of possible solutions to the N queens problem.
-"""
-n = 0
-"""The size of the chessboard.
-"""
-pos = None
-"""The list of possible positions on the chessboard.
-"""
+class NQueensSolver:
+    """NQueensSolver class that solves the n-queens problem"""
+
+    def __init__(self, N):
+        """initialize the NQueensSolver class"""
+        self.n = N
+        self.board = [[0 for col in range(N)] for row in range(N)]
+        self.solutions = []
+
+    def solve(self):
+        """solve the n-queens problem and return the solutions"""
+        self.place_queen(0)
+        return self.solutions
+
+    def place_queen(self, col):
+        """place the queens on the board"""
+        if col == self.n:
+            self.solutions.append(self.get_queens())
+            return True
+        # for each row in the column
+        for row in range(self.n):
+            if self.is_safe(row, col):
+                self.board[row][col] = 1
+                self.place_queen(col + 1)
+                self.board[row][col] = 0
+
+    def is_safe(self, row, col):
+        """check if the queen is safe to place in the given
+        position"""
+        for c in range(col):
+            if self.board[row][c] == 1:
+                return False
+        # check upper diagonal
+        for r, c in zip(range(row, -1, -1), range(col, -1, -1)):
+            if self.board[r][c] == 1:
+                return False
+        # check lower diagonal
+        for r, c in zip(range(row, self.n), range(col, -1, -1)):
+            if self.board[r][c] == 1:
+                return False
+
+        return True
+
+    def get_queens(self):
+        """get the queens on the board"""
+        queens = []
+        for row in range(self.n):
+            for col in range(self.n):
+                if self.board[row][col] == 1:
+                    queens.append([row, col])
+        return queens
+
+    # def print_board(self):
+    #     """print the board"""
+    #     for row in self.board:
+    #         print(row)
 
 
-def get_input():
-    """Retrieves and validates this program's argument.
-    Returns:
-        int: The size of the chessboard.
-    """
-    global n
-    n = 0
+def main():
+    """main function dealing with the constraints"""
     if len(sys.argv) != 2:
         print("Usage: nqueens N")
         sys.exit(1)
+
     try:
         n = int(sys.argv[1])
-    except Exception:
+    except ValueError:
         print("N must be a number")
         sys.exit(1)
+
     if n < 4:
         print("N must be at least 4")
         sys.exit(1)
-    return n
+
+    n_queens = NQueensSolver(n)
+    solutions = n_queens.solve()
+    for solution in solutions:
+        print(solution)
 
 
-def is_attacking(pos0, pos1):
-    """the positions of two queens are in an attacking mode.
-    Args:
-        pos0 (list or tuple): 1st queen's position.
-        pos1 (list or tuple): 2ndqueen's position.
-    Returns:
-        bool: True if the queens are in an attacking position else False.
-    """
-    if (pos0[0] == pos1[0]) or (pos0[1] == pos1[1]):
-        return True
-    return abs(pos0[0] - pos1[0]) == abs(pos0[1] - pos1[1])
-
-
-def group_exists(group):
-    """Checks if a group exists in the list of solutions.
-    Args:
-        group (list of integers): A group of possible positions.
-    Returns:
-        bool: True if it exists, otherwise False.
-    """
-    global solutions
-    for stn in solutions:
-        i = 0
-        for stn_pos in stn:
-            for grp_pos in group:
-                if stn_pos[0] == grp_pos[0] and stn_pos[1] == grp_pos[1]:
-                    i += 1
-        if i == n:
-            return True
-    return False
-
-
-def build_solution(row, group):
-    """Builds a solution for the n queens problem.
-    Args:
-        row (int): The current row in the chessboard.
-        group (list of lists of integers): The group of valid positions.
-    """
-    global solutions
-    global n
-    if row == n:
-        tmp0 = group.copy()
-        if not group_exists(tmp0):
-            solutions.append(tmp0)
-    else:
-        for col in range(n):
-            a = (row * n) + col
-            matches = zip(list([pos[a]]) * len(group), group)
-            used_positions = map(lambda x: is_attacking(x[0], x[1]), matches)
-            group.append(pos[a].copy())
-            if not any(used_positions):
-                build_solution(row + 1, group)
-            group.pop(len(group) - 1)
-
-
-def get_solutions():
-    """Gets the solutions for the given chessboard size.
-    """
-    global pos, n
-    pos = list(map(lambda x: [x // n, x % n], range(n ** 2)))
-    a = 0
-    group = []
-    build_solution(a, group)
-
-
-n = get_input()
-get_solutions()
-for solution in solutions:
-    print(solution)
+if __name__ == "__main__":
+    """call main function"""
+    main()

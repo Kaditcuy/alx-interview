@@ -17,10 +17,10 @@ def makeChange(coins, total):
 
     for coin in coin_list:
         if coin <= total:
-            coin_qty += total // coin;
+            coin_qty += total // coin
 
             total %= coin
             if total == 0:
                 return coin_qty
 
-    return-1
+    return -1
